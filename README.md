@@ -11,4 +11,4 @@
    `https://www.codechef.com/problems/GMEDIAN?tab=statement`, and click the
    button that appears bottom-right.
 
-[image.png]
+<img width="786" height="1047" alt="image" src="https://github.com/3sum/codechef-editorial-finder/blob/main/image.png" />
