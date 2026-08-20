@@ -1,14 +1,13 @@
 # CodeChef Editorial Finder
 
-## Load it locally
+A Chrome extension for quick access to CodeChef problem editorials.
 
-1. Unzip this folder somewhere permanent (don't delete it after loading —
-   Chrome loads unpacked extensions by reference, not by copy).
-2. Go to `chrome://extensions` (or `edge://extensions`).
-3. Turn on **Developer mode** (top-right toggle).
+## Installation
+
+1. Download and extract this repository to a permanent location.
+2. Navigate to `chrome://extensions` (or `edge://extensions`).
+3. Enable **Developer mode**.
 4. Click **Load unpacked** and select the `codechef-editorial-finder` folder.
-5. Visit any problem page, e.g.
-   `https://www.codechef.com/problems/GMEDIAN?tab=statement`, and click the
-   button that appears bottom-right.
+5. Open any CodeChef problem page and click the button in the bottom-right corner.
 
-<img width="786" height="1047" alt="image" src="https://github.com/3sum/codechef-editorial-finder/blob/main/image.png" />
+![Extension Demo](https://raw.githubusercontent.com/3sum/codechef-editorial-finder/main/image.png)
