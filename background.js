@@ -2,6 +2,57 @@
 // discuss.codechef.com is NOT subject to the page's CORS policy
 // (only to whatever discuss.codechef.com itself allows for direct requests).
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function findEditorialTopic(topics, term) {
+  const termLower = term.toLowerCase();
+  const termRegex = new RegExp(`\\b${escapeRegex(termLower)}\\b`, "i");
+  const editorialRegex = /\beditorial\b/i;
+
+  // Step 1: Check slugs for {term}-editorial (e.g. "exptree-editorial")
+  for (const topic of topics) {
+    if (topic.slug && topic.slug.includes(termLower + "-editorial")) {
+      return topic;
+    }
+  }
+
+  // Step 2: Check titles for BOTH {term} and "editorial" as separate words
+  // (e.g. "EXPTREE Editorial" but NOT "Exptrees Editorial")
+  const bothMatches = [];
+  for (let i = 0; i < topics.length; i++) {
+    const topic = topics[i];
+    if (!topic.title) continue;
+    const titleLower = topic.title.toLowerCase();
+    if (termRegex.test(titleLower) && editorialRegex.test(titleLower)) {
+      bothMatches.push({ topic, len: topic.title.length, index: i });
+    }
+  }
+  if (bothMatches.length > 0) {
+    bothMatches.sort((a, b) => a.len - b.len || a.index - b.index);
+    return bothMatches[0].topic;
+  }
+
+  // Step 3: Check titles for {term} as a separate word (any title)
+  const termMatches = [];
+  for (let i = 0; i < topics.length; i++) {
+    const topic = topics[i];
+    if (!topic.title) continue;
+    const titleLower = topic.title.toLowerCase();
+    if (termRegex.test(titleLower)) {
+      termMatches.push({ topic, len: topic.title.length, index: i });
+    }
+  }
+  if (termMatches.length > 0) {
+    termMatches.sort((a, b) => a.len - b.len || a.index - b.index);
+    return termMatches[0].topic;
+  }
+
+  // Step 4: No match
+  return null;
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type !== "FIND_EDITORIAL") return false;
 
@@ -21,7 +72,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return;
       }
 
-      const topic = topics[0];
+      const topic = findEditorialTopic(topics, term);
+      if (!topic) {
+        sendResponse({ ok: false, error: "No editorial found for this problem." });
+        return;
+      }
+
       if (!topic.slug || topic.id === undefined || topic.id === null) {
         sendResponse({ ok: false, error: "Top result is missing a slug/id." });
         return;
