@@ -57,17 +57,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type !== "FIND_EDITORIAL") return false;
 
   const term = message.term;
-  const url = `https://discuss.codechef.com/search/query?term=${encodeURIComponent(term)}`;
+  const termEditorial = `${term} - Editorial`;
 
-  fetch(url, { headers: { Accept: "application/json" } })
-    .then((res) => {
+  const fetchTopics = (q) =>
+    fetch(
+      `https://discuss.codechef.com/search/query?term=${encodeURIComponent(q)}`,
+      { headers: { Accept: "application/json" } }
+    ).then((res) => {
       if (!res.ok) throw new Error(`discuss.codechef.com returned ${res.status}`);
       return res.json();
-    })
-    .then((data) => {
-      const topics = data && data.topics;
+    }).then((data) => (data && data.topics) || []);
 
-      if (!topics || topics.length === 0) {
+  // Fire both queries in parallel; collect whichever succeed.
+  Promise.allSettled([fetchTopics(term), fetchTopics(termEditorial)])
+    .then(([r1, r2]) => {
+      // Merge results, preserving order (code-query first, then code-editorial-query),
+      // deduplicating by topic id.
+      const seen = new Set();
+      const topics = [];
+      for (const result of [r1, r2]) {
+        if (result.status === "fulfilled") {
+          for (const topic of result.value) {
+            if (!seen.has(topic.id)) {
+              seen.add(topic.id);
+              topics.push(topic);
+            }
+          }
+        }
+      }
+
+      if (topics.length === 0) {
         sendResponse({ ok: false, error: "No discussion threads found for this problem." });
         return;
       }
