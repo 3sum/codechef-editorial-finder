@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "CodeChef Editorial Finder",
+  "version": "1.0.0",
+  "description": "Adds a button on CodeChef problem pages that jumps straight to the editorial/discussion thread on discuss.codechef.com.",
+  "permissions": ["scripting"],
+  "host_permissions": [
+    "https://www.codechef.com/*",
+    "https://discuss.codechef.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.codechef.com/problems/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
